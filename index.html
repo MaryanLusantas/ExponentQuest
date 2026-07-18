@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ExponentQuest — Laws of Exponents Game</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A2%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css" />
+<style>
+  /* ══════════════════════════════════════
+     RESET & TOKENS
+  ══════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper:        #FBF7EF;
+    --card:         #FFFFFF;
+    --grid-line:    rgba(30, 41, 66, 0.055);
+    --grid-line-strong: rgba(30, 41, 66, 0.09);
+
+    --ink:          #1C2333;
+    --ink-soft:     #535C71;
+    --ink-faint:    #9096A6;
+
+    --border:        rgba(28, 35, 51, 0.11);
+    --border-strong: rgba(28, 35, 51, 0.22);
+
+    --accent:       #2E4CDB;
+    --accent-dark:  #1E33A8;
+    --accent-soft:  #E7EBFC;
+
+    --amber:        #DC9A2E;
+    --amber-dark:   #9C6A15;
+    --amber-soft:   #FBEFD8;
+
+    --green:        #1E9E68;
+    --green-dark:   #146B47;
+    --green-soft:   #E3F6ED;
+
+    --red:          #D1454A;
+    --red-dark:     #8F262B;
+    --red-soft:     #FBEAEB;
+
+    --violet:       #7A5CFA;
+
+    --shadow-sm: 0 1px 2px rgba(28,35,51,0.06);
+    --shadow-md: 0 4px 16px rgba(28,35,51,0.08);
+    --shadow-lg: 0 12px 32px rgba(28,35,51,0.12);
+
+    --radius-sm: 8px;
+    --radius:    14px;
+    --radius-lg: 22px;
+
+    --font-display: "Fraunces", Georgia, serif;
+    --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:        #14161C;
+      --card:         #1D2029;
+      --grid-line:    rgba(255,255,255,0.045);
+      --grid-line-strong: rgba(255,255,255,0.08);
+
+      --ink:          #ECE9E1;
+      --ink-soft:     #A7ACBB;
+      --ink-faint:    #666C7D;
+
+      --border:        rgba(255,255,255,0.09);
+      --border-strong: rgba(255,255,255,0.16);
+
+      --accent:       #6E86FF;
+      --accent-dark:  #93A5FF;
+      --accent-soft:  #232A4A;
+
+      --amber:        #F0B653;
+      --amber-dark:   #F5C878;
+      --amber-soft:   #3A2E14;
+
+      --green:        #3FCB8E;
+      --green-dark:   #6DDBA8;
+      --green-soft:   #113325;
+
+      --red:          #E9767A;
+      --red-dark:     #F09EA1;
+      --red-soft:     #3A1A1B;
+
+      --violet:       #9B85FF;
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+      --shadow-lg: 0 16px 40px rgba(0,0,0,0.45);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background:
+      repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 32px),
+      repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 32px),
+      var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+    min-height: 100%;
+  }
+
+  #app { width: 100%; max-width: 720px; }
+
+  button { font: inherit; }
+  button:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2.5px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* ── Screen system ── */
+  .screen { display: none; }
+  .screen.active {
+    display: block;
+    animation: screenIn 0.38s cubic-bezier(.19,1,.22,1);
+  }
+  @keyframes screenIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ══════════════════════════════
+     TOP BAR (persistent identity)
+  ══════════════════════════════ */
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+  .brand-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    letter-spacing: -0.3px;
+  }
+  .brand-mark .base { color: var(--ink); }
+  .brand-mark .exp {
+    font-size: 0.6em;
+    color: var(--accent);
+    transform: translateY(-0.9em);
+    font-weight: 700;
+  }
+  .sound-toggle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--ink-soft);
+    transition: border-color .15s, color .15s, transform .1s;
+    box-shadow: var(--shadow-sm);
+  }
+  .sound-toggle:hover { border-color: var(--border-strong); color: var(--ink); }
+  .sound-toggle:active { transform: scale(0.93); }
+  .sound-toggle.on { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
+
+  /* ══════════════════════════════
+     HOME SCREEN
+  ══════════════════════════════ */
+  .home-header {
+    text-align: center;
+    padding: 1.75rem 0 1.75rem;
+  }
+  .game-logo {
+    font-family: var(--font-display);
+    font-size: 2.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -1px;
+    line-height: 1;
+    position: relative;
+    display: inline-block;
+  }
+  .game-logo .hl {
+    position: relative;
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .game-logo .hl::after {
+    content: "";
+    position: absolute;
+    left: -4px; right: -4px; bottom: 2px;
+    height: 0.4em;
+    background: var(--amber-soft);
+    z-index: -1;
+    border-radius: 2px;
+  }
+  .game-logo .pow {
+    font-size: 0.42em;
+    vertical-align: super;
+    color: var(--amber-dark);
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+  .home-header p {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    margin-top: 10px;
+  }
+
+  .section-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 1.6rem 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--grid-line-strong);
+  }
+
+  /* Law selection */
+  .law-select-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .law-select-count {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+  .law-select-count b { color: var(--ink); font-weight: 700; }
+  .law-select-actions { display: flex; gap: 4px; }
+  .law-select-actions button {
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    padding: 3px 7px;
+    border-radius: 6px;
+    transition: background .12s;
+  }
+  .law-select-actions button:hover { background: var(--accent-soft); }
+  .law-select-actions span { color: var(--border-strong); font-size: 12px; padding-top: 3px; }
+
+  .law-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .law-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 14px 13px;
+    cursor: pointer;
+    transition: border-color .15s, transform .12s, box-shadow .15s, background .15s;
+    user-select: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .law-card:hover { border-color: var(--law-color, var(--border-strong)); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .law-card.selected {
+    border-color: var(--law-color, var(--accent));
+    background: color-mix(in srgb, var(--law-color, var(--accent)) 5%, var(--card));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--law-color, var(--accent)) 13%, transparent);
+  }
+  .law-card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-bottom: 11px;
+  }
+  .law-card .law-icon {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--law-color, var(--accent)) 15%, transparent);
+    color: var(--law-color, var(--accent));
+  }
+  .law-card-titles { flex: 1; min-width: 0; }
+  .law-card .law-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .law-card .law-mini-hint {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+    line-height: 1.35;
+  }
+  .law-card .law-check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    background: var(--card);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: transparent;
+    transition: all .15s;
+    margin-top: 1px;
+  }
+  .law-card.selected .law-check {
+    background: var(--law-color, var(--accent));
+    border-color: var(--law-color, var(--accent));
+    color: #fff;
+  }
+  .law-equation {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--paper);
+    border: 1px solid var(--grid-line-strong);
+    border-radius: var(--radius-sm);
+    padding: 9px 10px;
+    overflow: hidden;
+  }
+  .law-equation .eq-from {
+    color: var(--ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .law-equation .eq-arrow {
+    color: var(--ink-faint);
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .law-equation .eq-to {
+    color: var(--law-color, var(--accent));
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Difficulty + count rows */
+  .choice-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .choice-btn {
+    flex: 1;
+    min-width: 64px;
+    padding: 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all .15s;
+    font-family: var(--font-sans);
+  }
+  .choice-btn:hover { border-color: var(--accent); color: var(--ink); }
+  .choice-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .choice-desc {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 7px;
+    min-height: 16px;
+  }
+
+  /* Start button */
+  .start-btn {
+    width: 100%;
+    margin-top: 1.6rem;
+    padding: 15px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .15s, background .15s;
+    font-family: var(--font-sans);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-md);
+  }
+  .start-btn:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+  .start-btn:active { transform: translateY(0); }
+
+  /* Quick law reference on home */
+  .home-ref {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.3rem;
+    margin-top: 1.4rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .home-ref-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ref-table { width: 100%; border-collapse: collapse; }
+  .ref-table tr { border-bottom: 1px dashed var(--grid-line-strong); }
+  .ref-table tr:last-child { border-bottom: none; }
+  .ref-table td { padding: 8px 0; font-size: 13px; }
+  .ref-table td:first-child { color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+  .ref-table .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dot-color, var(--accent)); flex-shrink: 0; }
+  .ref-table td:last-child {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ══════════════════════════════
+     GAME SCREEN
+  ══════════════════════════════ */
+  .game-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .back-btn {
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 6px 13px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--ink-soft);
+    font-family: var(--font-sans);
+    transition: background .12s, color .12s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .back-btn:hover { background: var(--accent-soft); color: var(--accent-dark); }
+  .law-badge {
+    background: color-mix(in srgb, var(--law-color, var(--accent)) 14%, transparent);
+    color: var(--law-color, var(--accent));
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .stats-row { display: flex; gap: 6px; }
+  .stat-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 11px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-chip b { color: var(--ink); font-weight: 700; }
+  .stat-chip.coins {
+    background: var(--amber-soft);
+    border-color: transparent;
+  }
+  .stat-chip.coins b { color: var(--amber-dark); }
+  .stat-chip.coins.bump { animation: coinBump .4s ease; }
+  @keyframes coinBump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    background: var(--grid-line-strong);
+    border-radius: 99px;
+    height: 7px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--violet));
+    border-radius: 99px;
+    transition: width .45s cubic-bezier(.65,0,.35,1);
+  }
+
+  /* Power tower + streak */
+  .streak-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 30px;
+    margin-bottom: 10px;
+  }
+  .tower {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 3px;
+    align-items: flex-end;
+  }
+  .tower-block {
+    width: 9px;
+    height: 14px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--amber), var(--amber-dark));
+    animation: blockPop .28s cubic-bezier(.34,1.56,.64,1) backwards;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  .tower-block:nth-child(1) { animation-delay: 0s; }
+  .tower-block:nth-child(2) { animation-delay: .03s; }
+  .tower-block:nth-child(3) { animation-delay: .06s; }
+  .tower-block:nth-child(4) { animation-delay: .09s; }
+  .tower-block:nth-child(5) { animation-delay: .12s; }
+  @keyframes blockPop {
+    from { transform: scaleY(0); opacity: 0; }
+    to   { transform: scaleY(1); opacity: 1; }
+  }
+  .streak-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber-dark);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.6rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--law-color, var(--accent));
+  }
+  .q-label {
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .q-hint {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    padding: 9px 13px;
+    background: var(--paper);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--law-color, var(--accent));
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .q-hint-btn {
+    width: 100%;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--amber-dark);
+    margin-bottom: 16px;
+    padding: 9px 13px;
+    background: var(--amber-soft);
+    border: 1px dashed var(--amber);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-family: var(--font-sans);
+    transition: background .12s, transform .1s;
+  }
+  .q-hint-btn:hover { background: #f5e2ba; }
+  .q-hint-btn:active { transform: scale(0.98); }
+  .q-hint-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .q-hint-btn .coin-cost {
+    font-family: var(--font-mono);
+    background: rgba(0,0,0,0.06);
+    padding: 1px 6px;
+    border-radius: 999px;
+  }
+  .q-text {
+    font-size: 1.85rem;
+    font-weight: 500;
+    color: var(--ink);
+    text-align: center;
+    padding: 1.1rem 0 0.4rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+  }
+  .q-text sup { font-size: 0.6em; vertical-align: super; }
+
+  /* Options */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .opt-btn {
+    position: relative;
+    padding: 16px 14px 16px 40px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--card);
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    transition: all .13s;
+    line-height: 1.3;
+    text-align: left;
+    box-shadow: var(--shadow-sm);
+  }
+  .opt-btn .opt-key {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    background: var(--grid-line-strong);
+    color: var(--ink-faint);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .opt-btn:hover:not(:disabled) {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-dark);
+    transform: translateY(-1px);
+  }
+  .opt-btn:hover:not(:disabled) .opt-key { background: var(--accent); color: #fff; }
+  .opt-btn.correct {
+    background: var(--green-soft);
+    border-color: var(--green);
+    color: var(--green-dark);
+    animation: correctPulse .35s ease;
+  }
+  .opt-btn.correct .opt-key { background: var(--green); color: #fff; }
+  .opt-btn.wrong {
+    background: var(--red-soft);
+    border-color: var(--red);
+    color: var(--red-dark);
+    animation: shake .35s ease;
+  }
+  .opt-btn.wrong .opt-key { background: var(--red); color: #fff; }
+  .opt-btn:disabled { cursor: not-allowed; }
+  .opt-btn:disabled:not(.correct):not(.wrong) { opacity: 0.5; }
+  @keyframes correctPulse { 0% { transform: scale(1); } 45% { transform: scale(1.035); } 100% { transform: scale(1); } }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  /* Feedback */
+  .feedback-box {
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-top: 12px;
+    display: none;
+    line-height: 1.5;
+    align-items: flex-start;
+    gap: 9px;
+  }
+  .feedback-box.correct {
+    background: var(--green-soft);
+    color: var(--green-dark);
+    border: 1px solid var(--green);
+    display: flex;
+  }
+  .feedback-box.wrong {
+    background: var(--red-soft);
+    color: var(--red-dark);
+    border: 1px solid var(--red);
+    display: flex;
+  }
+  .feedback-box i { font-size: 17px; margin-top: 1px; flex-shrink: 0; }
+
+  /* Next button */
+  .next-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-sans);
+    transition: background .15s, transform .1s;
+  }
+  .next-btn.show { display: flex; animation: nextIn .25s ease; }
+  .next-btn:hover { background: var(--accent-dark); }
+  .next-btn kbd {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    background: rgba(255,255,255,0.18);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  @keyframes nextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Reference panel (in-game) */
+  .ref-toggle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--ink-soft);
+    width: 100%;
+    margin-top: 12px;
+    font-family: var(--font-sans);
+    transition: background .12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .ref-toggle:hover { background: var(--accent-soft); color: var(--accent-dark); }
+  .ref-panel {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-top: 8px;
+  }
+  .ref-panel.show { display: block; animation: nextIn .2s ease; }
+  .ref-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--grid-line-strong);
+    font-size: 13px;
+  }
+  .ref-item:last-child { border-bottom: none; }
+  .ref-item .rname { color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+  .ref-item .rform { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+
+  /* Keyboard hint */
+  .kbd-hint {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+  .kbd-hint kbd {
+    font-family: var(--font-mono);
+    background: var(--grid-line-strong);
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin: 0 1px;
+  }
+
+  /* ══════════════════════════════
+     RESULTS SCREEN
+  ══════════════════════════════ */
+  .results-wrap { text-align: center; padding: 1.25rem 0 0; position: relative; }
+
+  .result-tower {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+    height: 92px;
+    margin-bottom: 1rem;
+  }
+  .result-tower .rt-block {
+    width: 15px;
+    border-radius: 3px 3px 0 0;
+    animation: rtGrow .5s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .result-tower .rt-block.hit { background: linear-gradient(180deg, var(--green), var(--green-dark)); }
+  .result-tower .rt-block.miss { background: var(--grid-line-strong); border: 1.5px dashed var(--border-strong); }
+  @keyframes rtGrow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
+
+  .result-grade {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .result-msg {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-bottom: 1.6rem;
+  }
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .result-stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 15px 6px;
+    box-shadow: var(--shadow-sm);
+  }
+  .result-stat .rs-num {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ink);
+    font-family: var(--font-display);
+  }
+  .result-stat .rs-label {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .result-actions { display: flex; gap: 10px; }
+  .result-actions button {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: opacity .15s, background .15s, transform .1s;
+  }
+  .btn-retry { background: var(--ink); color: var(--paper); border: none; box-shadow: var(--shadow-md); }
+  .btn-retry:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  .btn-home { background: var(--card); border: 1px solid var(--border-strong); color: var(--ink); }
+  .btn-home:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); }
+
+  /* Per-law breakdown */
+  .breakdown-section { text-align: left; margin-top: 1.8rem; }
+  .breakdown-title, .review-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .bd-row { margin-bottom: 11px; }
+  .bd-row-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    margin-bottom: 5px;
+    color: var(--ink-soft);
+  }
+  .bd-row-top b { color: var(--ink); font-weight: 600; }
+  .bd-bar-wrap {
+    height: 7px;
+    border-radius: 99px;
+    background: var(--grid-line-strong);
+    overflow: hidden;
+  }
+  .bd-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--bd-color, var(--accent));
+    transition: width .5s cubic-bezier(.65,0,.35,1);
+  }
+
+  /* Review section on results */
+  .review-section { text-align: left; margin-top: 1.8rem; }
+  .review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .review-filter {
+    display: flex;
+    gap: 4px;
+    background: var(--grid-line-strong);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .review-filter button {
+    border: none;
+    background: transparent;
+    padding: 5px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+  .review-filter button.active { background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm); }
+
+  .review-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+  }
+  .review-icon {
+    font-size: 13px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .review-icon.correct { color: var(--green-dark); background: var(--green-soft); }
+  .review-icon.wrong { color: var(--red-dark); background: var(--red-soft); }
+  .review-q { font-size: 13.5px; color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+  .review-exp { font-size: 12px; color: var(--ink-faint); margin-top: 4px; }
+  .review-empty {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--ink-faint);
+    font-size: 13px;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    top: -10px;
+    width: 8px; height: 14px;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 999;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(105vh) rotate(540deg); opacity: 0.3; }
+  }
+
+  /* Fireworks */
+  .firework-wrap {
+    position: fixed;
+    left: 0; top: 0;
+    width: 0; height: 0;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .firework-particle {
+    position: absolute;
+    left: 0; top: 0;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    opacity: 1;
+    animation: fwBurst 1s cubic-bezier(.15,.7,.3,1) forwards;
+  }
+  @keyframes fwBurst {
+    to { transform: translate(var(--dx), var(--dy)) scale(0.25); opacity: 0; }
+  }
+
+  /* Emoji popper */
+  .popper-emoji {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    font-size: 22px;
+    opacity: 1;
+    animation: popperFly 1.4s cubic-bezier(.15,.6,.3,1) forwards;
+  }
+  @keyframes popperFly {
+    to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+  }
+
+  /* ══════════════════════════════
+     SAVE SCORE / LEADERBOARD
+  ══════════════════════════════ */
+  .lb-nav-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-sans);
+    transition: background .12s, color .12s;
+    box-shadow: var(--shadow-sm);
+  }
+  .lb-nav-btn:hover { background: var(--accent-soft); color: var(--accent-dark); }
+
+  .save-score-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.3rem;
+    margin-top: 1.8rem;
+    text-align: left;
+    box-shadow: var(--shadow-sm);
+  }
+  .save-score-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .save-score-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  .save-score-row { display: flex; gap: 8px; }
+  .save-score-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 13px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+  .save-score-row input:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 1px; }
+  .save-score-row button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    white-space: nowrap;
+    transition: background .15s, opacity .15s;
+  }
+  .save-score-row button:hover { background: var(--accent-dark); }
+  .save-score-row button:disabled { opacity: 0.55; cursor: not-allowed; }
+  .save-score-status {
+    font-size: 12.5px;
+    margin-top: 10px;
+    min-height: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .save-score-status.ok { color: var(--green-dark); }
+  .save-score-status.err { color: var(--red-dark); }
+  .save-score-status.pending { color: var(--ink-faint); }
+
+  .lb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+  .lb-list { display: flex; flex-direction: column; gap: 8px; }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 15px;
+    box-shadow: var(--shadow-sm);
+  }
+  .lb-row.you { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .lb-rank {
+    width: 26px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  .lb-rank.top1 { color: var(--amber-dark); }
+  .lb-rank.top2 { color: var(--ink-soft); }
+  .lb-rank.top3 { color: #A0522D; }
+  .lb-info { flex: 1; min-width: 0; }
+  .lb-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lb-meta {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .lb-score {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .lb-empty, .lb-loading {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--ink-faint);
+    font-size: 13.5px;
+  }
+  .lb-loading i { animation: spin 0.9s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══════════════════════════════
+     AVATAR PICKER
+  ══════════════════════════════ */
+  .avatar-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 12px;
+  }
+  .avatar-opt {
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: var(--paper);
+    font-size: 17px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform .12s, border-color .12s, background .12s;
+  }
+  .avatar-opt:hover { transform: translateY(-2px); }
+  .avatar-opt.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  /* ══════════════════════════════
+     PODIUM (top 3)
+  ══════════════════════════════ */
+  .podium {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: end;
+    gap: 8px;
+    margin-bottom: 1.4rem;
+  }
+  .podium-slot {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    padding: 14px 6px 12px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: podiumIn 0.5s cubic-bezier(.19,1,.22,1) forwards;
+  }
+  .podium-slot.p1 { order: 2; padding-top: 20px; border-color: var(--amber); box-shadow: 0 6px 20px rgba(220,154,46,0.22); animation-delay: .12s; }
+  .podium-slot.p2 { order: 1; animation-delay: .22s; }
+  .podium-slot.p3 { order: 3; animation-delay: .32s; }
+  @keyframes podiumIn { to { opacity: 1; transform: translateY(0); } }
+  .podium-slot.you { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .podium-medal { font-size: 24px; line-height: 1; margin-bottom: 4px; display: block; }
+  .podium-slot.p1 .podium-medal { font-size: 30px; animation: crownBob 1.8s ease-in-out infinite; }
+  @keyframes crownBob { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-3px) rotate(4deg); } }
+  .podium-avatar { font-size: 22px; margin-bottom: 2px; }
+  .podium-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .podium-score {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+
+  .lb-avatar {
+    font-size: 17px;
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lb-row { animation: rowIn 0.4s cubic-bezier(.19,1,.22,1) backwards; }
+  @keyframes rowIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  .lb-row.you .lb-name::after {
+    content: "YOU";
+    margin-left: 7px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    padding: 1px 6px;
+    border-radius: 999px;
+    vertical-align: middle;
+  }
+
+  .share-score-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: border-color .12s, color .12s, background .12s;
+  }
+  .share-score-btn:hover { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-soft); }
+
+  /* ── Responsive ── */
+  @media (max-width: 560px) {
+    .law-cards { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .game-logo { font-size: 2.2rem; }
+    .q-text { font-size: 1.35rem; }
+    .options-grid { grid-template-columns: 1fr; }
+    .opt-btn { font-size: 1rem; }
+    .topbar-left .law-badge { display: none; }
+    .kbd-hint { display: none; }
+    .result-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ════════════════════════════
+       HOME SCREEN
+  ════════════════════════════ -->
+  <div id="screen-home" class="screen active">
+
+    <div class="brand-row">
+      <div class="brand-mark"><span class="base">Exponent</span><span class="exp">Quest</span></div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="lb-nav-btn" id="lb-nav-btn" type="button"><i class="ti ti-trophy" aria-hidden="true"></i> Leaderboard</button>
+        <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false" aria-label="Toggle sound effects">
+          <i class="ti ti-volume-3" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="home-header">
+      <div class="game-logo">Exponent<span class="hl">Quest<span class="pow">n</span></span></div>
+      <p>Master the laws of exponents through interactive challenges</p>
+    </div>
+
+    <div class="section-label">Choose laws to practice</div>
+    <div class="law-select-header">
+      <div class="law-select-count"><b id="law-select-count">6</b> of 6 selected</div>
+      <div class="law-select-actions">
+        <button type="button" id="law-select-all">Select all</button>
+        <span>&middot;</span>
+        <button type="button" id="law-select-clear">Clear</button>
+      </div>
+    </div>
+    <div class="law-cards" id="law-cards-container"></div>
+
+    <div class="section-label">Questions</div>
+    <div class="choice-row" id="count-row">
+      <button class="choice-btn" data-count="5">5</button>
+      <button class="choice-btn active" data-count="10">10</button>
+      <button class="choice-btn" data-count="15">15</button>
+      <button class="choice-btn" data-count="20">20</button>
+    </div>
+
+    <div class="section-label">Difficulty</div>
+    <div class="choice-row" id="diff-row">
+      <button class="choice-btn active" data-diff="easy">Easy</button>
+      <button class="choice-btn" data-diff="medium">Medium</button>
+      <button class="choice-btn" data-diff="hard">Hard</button>
+    </div>
+    <div class="choice-desc" id="diff-desc">Small bases (2–4), exponents up to 4</div>
+
+    <button class="start-btn" id="start-btn">Start game <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+
+    <div class="home-ref">
+      <div class="home-ref-title">
+        <i class="ti ti-book" aria-hidden="true"></i> Law reference
+      </div>
+      <table class="ref-table">
+        <tbody id="home-ref-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════
+       GAME SCREEN
+  ════════════════════════════ -->
+  <div id="screen-game" class="screen">
+
+    <div class="game-topbar">
+      <div class="topbar-left">
+        <button class="back-btn" id="back-btn"><i class="ti ti-arrow-left" aria-hidden="true"></i> Home</button>
+        <div class="law-badge" id="active-law-badge">—</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-chip coins" id="stat-coins-chip">
+          <span aria-hidden="true">🪙</span>
+          <b id="stat-coins">0</b>
+        </div>
+        <div class="stat-chip">
+          <i class="ti ti-check" aria-hidden="true" style="color:var(--green)"></i>
+          <b id="stat-correct">0</b>
+        </div>
+        <div class="stat-chip">
+          <i class="ti ti-x" aria-hidden="true" style="color:var(--red)"></i>
+          <b id="stat-wrong">0</b>
+        </div>
+        <div class="stat-chip">
+          <i class="ti ti-hash" aria-hidden="true"></i>
+          <b id="stat-q">1/10</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="streak-row" id="streak-row" aria-live="polite"></div>
+
+    <div class="question-card">
+      <div class="q-label" id="q-law-label">—</div>
+      <button class="q-hint-btn" id="q-hint-btn" type="button"><i class="ti ti-bulb" aria-hidden="true"></i> Reveal hint <span class="coin-cost">-2 🪙</span></button>
+      <div class="q-hint" id="q-hint" style="display:none;"><i class="ti ti-bulb" aria-hidden="true"></i><span></span></div>
+      <div class="q-text" id="q-text">Loading…</div>
+    </div>
+
+    <div id="options-area" aria-live="polite"></div>
+
+    <div class="feedback-box" id="feedback-box" role="status"></div>
+    <button class="next-btn" id="next-btn">Next question <i class="ti ti-arrow-right" aria-hidden="true"></i> <kbd>Enter</kbd></button>
+    <div class="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer &middot; <kbd>Enter</kbd> to continue</div>
+
+    <button class="ref-toggle" id="ref-toggle" aria-expanded="false">
+      <i class="ti ti-book" aria-hidden="true"></i> Show law reference
+    </button>
+    <div class="ref-panel" id="ref-panel">
+      <div id="ref-items"></div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════
+       RESULTS SCREEN
+  ════════════════════════════ -->
+  <div id="screen-results" class="screen">
+    <div class="results-wrap">
+
+      <div class="result-tower" id="result-tower"></div>
+
+      <div class="result-grade" id="res-grade">Great job!</div>
+      <div class="result-msg" id="res-msg">Keep practicing.</div>
+
+      <div class="result-stats">
+        <div class="result-stat">
+          <div class="rs-num" id="res-correct">0</div>
+          <div class="rs-label">Correct</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-num" id="res-streak">0</div>
+          <div class="rs-label">Best streak</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-num" id="res-acc">0%</div>
+          <div class="rs-label">Accuracy</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-num" id="res-coins">0 🪙</div>
+          <div class="rs-label">Coins earned</div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-retry" id="retry-btn">Play again</button>
+        <button class="btn-home" id="home-btn"><i class="ti ti-arrow-left" aria-hidden="true"></i> Home</button>
+      </div>
+
+      <div class="breakdown-section" id="breakdown-section">
+        <div class="breakdown-title">Accuracy by law</div>
+        <div id="breakdown-list"></div>
+      </div>
+
+      <div class="save-score-card">
+        <div class="save-score-title">Save to the shared leaderboard</div>
+        <div class="save-score-note">Visible to everyone who plays this game.</div>
+        <div class="avatar-picker" id="avatar-picker"></div>
+        <div class="save-score-row">
+          <input type="text" id="lb-name-input" placeholder="Your name" maxlength="20" />
+          <button id="lb-save-btn">Save score</button>
+        </div>
+        <div class="save-score-status" id="lb-save-status"></div>
+        <button class="share-score-btn" id="share-score-btn" type="button"><i class="ti ti-share-2" aria-hidden="true"></i> Copy score to share</button>
+      </div>
+
+      <div class="review-section">
+        <div class="review-header">
+          <div class="review-title" style="margin-bottom:0;">Question review</div>
+          <div class="review-filter" id="review-filter">
+            <button class="active" data-filter="all">All</button>
+            <button data-filter="miss">Missed</button>
+          </div>
+        </div>
+        <div id="review-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       LEADERBOARD SCREEN
+  ════════════════════════════ -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="lb-header">
+      <button class="back-btn" id="lb-back-btn"><i class="ti ti-arrow-left" aria-hidden="true"></i> Home</button>
+      <button class="lb-nav-btn" id="lb-refresh-btn"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+    </div>
+    <div class="home-header" style="padding-top:0;">
+      <div class="game-logo" style="font-size:1.9rem;">Top <span class="hl">Scores<span class="pow">n</span></span></div>
+      <p>Best runs from everyone who's played ExponentQuest</p>
+    </div>
+    <div id="lb-podium"></div>
+    <div id="lb-content" class="lb-list"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+/* ══════════════════════════════════════
+   DATA — Laws of Exponents
+══════════════════════════════════════ */
+const LAWS = [
+  {
+    id: 'product',
+    name: 'Product rule',
+    formula: 'a\u1D50 \u00B7 a\u207F = a\u1D50\u207A\u207F',
+    icon: 'ti-circle-plus',
+    color: '#2E4CDB',
+    hint: 'Multiplying same bases — add the exponents.',
+    genQuestion(diff) {
+      const bases = diff === 'hard' ? [2,3,5,7] : [2,3,4];
+      const a = pick(bases);
+      const maxE = diff === 'easy' ? 4 : diff === 'medium' ? 6 : 9;
+      const m = rand(1, maxE);
+      const n = rand(1, maxE);
+      const ans = m + n;
+      return {
+        text: `${a}<sup>${m}</sup> &times; ${a}<sup>${n}</sup> = ${a}<sup>?</sup>`,
+        answer: String(ans),
+        wrongOpts: dedup([ans+1, ans-1, m*n, ans+2].map(String), String(ans)).slice(0,3),
+        explanation: `Add the exponents: ${m} + ${n} = ${ans}. Answer: ${a}^${ans}`
+      };
+    }
+  },
+  {
+    id: 'quotient',
+    name: 'Quotient rule',
+    formula: 'a\u1D50 \u00F7 a\u207F = a\u1D50\u207B\u207F',
+    icon: 'ti-math-function',
+    color: '#1E9E68',
+    hint: 'Dividing same bases — subtract the exponents.',
+    genQuestion(diff) {
+      const bases = diff === 'hard' ? [2,3,5,7] : [2,3,4];
+      const a = pick(bases);
+      const maxE = diff === 'easy' ? 5 : diff === 'medium' ? 8 : 12;
+      const n = rand(1, Math.floor(maxE/2));
+      const m = n + rand(1, Math.floor(maxE/2));
+      const ans = m - n;
+      return {
+        text: `${a}<sup>${m}</sup> &divide; ${a}<sup>${n}</sup> = ${a}<sup>?</sup>`,
+        answer: String(ans),
+        wrongOpts: dedup([ans+1, ans-1, m+n, ans+2].map(String), String(ans)).slice(0,3),
+        explanation: `Subtract the exponents: ${m} \u2212 ${n} = ${ans}. Answer: ${a}^${ans}`
+      };
+    }
+  },
+  {
+    id: 'power',
+    name: 'Power rule',
+    formula: '(a\u1D50)\u207F = a\u1D50\u207F',
+    icon: 'ti-arrows-maximize',
+    color: '#D2691E',
+    hint: 'A power raised to a power — multiply the exponents.',
+    genQuestion(diff) {
+      const bases = diff === 'hard' ? [2,3,5] : [2,3];
+      const a = pick(bases);
+      const maxE = diff === 'easy' ? 3 : diff === 'medium' ? 5 : 7;
+      const m = rand(2, maxE);
+      const n = rand(2, maxE);
+      const ans = m * n;
+      return {
+        text: `(${a}<sup>${m}</sup>)<sup>${n}</sup> = ${a}<sup>?</sup>`,
+        answer: String(ans),
+        wrongOpts: dedup([ans+m, ans-n, m+n, ans+1].map(String), String(ans)).slice(0,3),
+        explanation: `Multiply the exponents: ${m} \u00D7 ${n} = ${ans}. Answer: ${a}^${ans}`
+      };
+    }
+  },
+  {
+    id: 'zero',
+    name: 'Zero exponent',
+    formula: 'a\u2070 = 1',
+    icon: 'ti-number-0',
+    color: '#B8860B',
+    hint: 'Any nonzero base raised to 0 equals 1.',
+    genQuestion(diff) {
+      const bases = diff === 'hard' ? [2,3,5,7,11,13,17] : [2,3,5,7,10];
+      const a = pick(bases);
+      return {
+        text: `${a}<sup>0</sup> = ?`,
+        answer: '1',
+        wrongOpts: dedup(['0', String(a), String(a*a)], '1').slice(0,3),
+        explanation: `Any nonzero number to the power 0 equals 1. So ${a}\u2070 = 1`
+      };
+    }
+  },
+  {
+    id: 'negative',
+    name: 'Negative exponents',
+    formula: 'a\u207B\u207F = 1/a\u207F',
+    icon: 'ti-minus',
+    color: '#7A5CFA',
+    hint: 'A negative exponent means take the reciprocal.',
+    genQuestion(diff) {
+      const bases = diff === 'hard' ? [2,3,5] : [2,3];
+      const a = pick(bases);
+      const maxE = diff === 'easy' ? 2 : diff === 'medium' ? 3 : 4;
+      const n = rand(1, maxE);
+      const ans = `1/${a}^${n}`;
+      return {
+        text: `${a}<sup>-${n}</sup> = ?`,
+        answer: ans,
+        wrongOpts: dedup(
+          [`${a}^${n}`, `-${a}^${n}`, `1/${a*n}`, `${a}^-${n+1}`],
+          ans
+        ).slice(0,3),
+        explanation: `Negative exponent = reciprocal: ${a}^(-${n}) = 1/(${a}^${n})`
+      };
+    }
+  },
+  {
+    id: 'product-power',
+    name: 'Product to a power',
+    formula: '(ab)\u207F = a\u207Fb\u207F',
+    icon: 'ti-circle-dot',
+    color: '#C23B22',
+    hint: 'Distribute the exponent to each factor inside the parentheses.',
+    genQuestion(diff) {
+      const pairs = diff === 'hard' ? [[2,3],[3,5],[2,7],[5,7]] : [[2,3],[2,4],[3,4]];
+      const [a, b] = pick(pairs);
+      const maxE = diff === 'easy' ? 3 : diff === 'medium' ? 4 : 5;
+      const n = rand(2, maxE);
+      const ans = `${a}^${n}*${b}^${n}`;
+      return {
+        text: `(${a}&middot;${b})<sup>${n}</sup> = ?`,
+        answer: ans,
+        wrongOpts: dedup(
+          [`${a}^${n}+${b}^${n}`, `${a+b}^${n}`, `${a*b}^${2*n}`],
+          ans
+        ).slice(0,3),
+        explanation: `Distribute the exponent: (${a}·${b})^${n} = ${a}^${n} · ${b}^${n}`
+      };
+    }
+  }
+];
+
+const ALL_LAWS_REF = LAWS.map(l => ({ name: l.name, form: l.formula, color: l.color }));
+
+const DIFF_DESCS = {
+  easy:   'Small bases (2–4), exponents up to 4',
+  medium: 'Bases up to 7, exponents up to 8',
+  hard:   'Primes as bases, large exponents'
+};
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+function dedup(arr, exclude) { return arr.filter((v, i, a) => v !== exclude && a.indexOf(v) === i); }
+function lawById(id) { return LAWS.find(l => l.id === id); }
+
+/* Render answer text: convert "1/a^n" style to HTML */
+function renderAns(s) {
+  return s
+    .replace(/\^(\d+)/g, '<sup>$1</sup>')
+    .replace(/\*/g, '&middot;');
+}
+
+/* ══════════════════════════════════════
+   TINY SOUND ENGINE (Web Audio, no assets)
+══════════════════════════════════════ */
+const Sound = (() => {
+  let ctx = null;
+  function ensureCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  }
+  function tone(freq, dur, delay, type, gainVal) {
+    const c = ensureCtx();
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = gainVal || 0.05;
+    osc.connect(gain);
+    gain.connect(c.destination);
+    const t0 = c.currentTime + (delay || 0);
+    gain.gain.setValueAtTime(gain.gain.value, t0);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.start(t0);
+    osc.stop(t0 + dur);
+  }
+  return {
+    correct() { if (!state.soundOn) return; tone(587, 0.11, 0, 'sine', 0.06); tone(880, 0.16, 0.09, 'sine', 0.06); },
+    wrong() { if (!state.soundOn) return; tone(220, 0.22, 0, 'sawtooth', 0.04); },
+    click() { if (!state.soundOn) return; tone(700, 0.05, 0, 'sine', 0.02); },
+    finish() { if (!state.soundOn) return; [523,659,784,1046].forEach((f,i)=>tone(f,0.18,i*0.09,'sine',0.05)); }
+  };
+})();
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let state = {
+  selectedLaws: LAWS.map(l => l.id),
+  difficulty: 'easy',
+  total: 10,
+  soundOn: false,
+  questions: [],
+  history: [],
+  lawStats: {},
+  currentQ: 0,
+  correct: 0,
+  wrong: 0,
+  streak: 0,
+  bestStreak: 0,
+  answered: false,
+  reviewFilter: 'all',
+  lbAvatar: null,
+  lastSavedId: null,
+  coins: 0,
+  hintRevealed: false
+};
+
+/* ══════════════════════════════════════
+   BUILD HOME
+══════════════════════════════════════ */
+function buildHome() {
+  const container = document.getElementById('law-cards-container');
+  container.innerHTML = '';
+  LAWS.forEach(law => {
+    const [eqFrom, eqTo] = law.formula.split(' = ');
+    const card = document.createElement('div');
+    card.className = 'law-card' + (state.selectedLaws.includes(law.id) ? ' selected' : '');
+    card.style.setProperty('--law-color', law.color);
+    card.innerHTML = `
+      <div class="law-card-head">
+        <div class="law-icon"><i class="ti ${law.icon}" aria-hidden="true"></i></div>
+        <div class="law-card-titles">
+          <div class="law-name">${law.name}</div>
+          <div class="law-mini-hint">${law.hint}</div>
+        </div>
+        <span class="law-check"><i class="ti ti-check" aria-hidden="true"></i></span>
+      </div>
+      <div class="law-equation">
+        <span class="eq-from">${eqFrom}</span>
+        <i class="ti ti-arrow-right eq-arrow" aria-hidden="true"></i>
+        <span class="eq-to">${eqTo}</span>
+      </div>`;
+    card.onclick = () => toggleLaw(law.id, card);
+    container.appendChild(card);
+  });
+  updateLawSelectCount();
+
+  const tbody = document.getElementById('home-ref-body');
+  tbody.innerHTML = ALL_LAWS_REF.map(r =>
+    `<tr><td><span class="dot" style="--dot-color:${r.color}"></span>${r.name}</td><td>${r.form}</td></tr>`
+  ).join('');
+
+  document.getElementById('diff-desc').textContent = DIFF_DESCS[state.difficulty];
+}
+
+function updateLawSelectCount() {
+  document.getElementById('law-select-count').innerHTML =
+    `<b>${state.selectedLaws.length}</b> of ${LAWS.length} selected`;
+}
+
+function toggleLaw(id, card) {
+  Sound.click();
+  if (state.selectedLaws.includes(id)) {
+    if (state.selectedLaws.length <= 1) return;
+    state.selectedLaws = state.selectedLaws.filter(l => l !== id);
+    card.classList.remove('selected');
+  } else {
+    state.selectedLaws.push(id);
+    card.classList.add('selected');
+  }
+  updateLawSelectCount();
+}
+
+/* ══════════════════════════════════════
+   QUESTION GENERATION
+══════════════════════════════════════ */
+function generateQuestions() {
+  const activeLaws = LAWS.filter(l => state.selectedLaws.includes(l.id));
+  const qs = [];
+  for (let i = 0; i < state.total; i++) {
+    const law = activeLaws[i % activeLaws.length];
+    const q = law.genQuestion(state.difficulty);
+    q.lawId = law.id;
+    q.lawName = law.name;
+    q.lawColor = law.color;
+    q.hint = law.hint;
+    qs.push(q);
+  }
+  return shuffle(qs);
+}
+
+/* ══════════════════════════════════════
+   SCREEN CONTROL
+══════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════
+   POWER TOWER (streak visual)
+══════════════════════════════════════ */
+function renderTower() {
+  const row = document.getElementById('streak-row');
+  if (state.streak < 2) { row.innerHTML = ''; return; }
+  const shown = Math.min(state.streak, 6);
+  const blocks = Array.from({length: shown}).map((_, i) =>
+    `<div class="tower-block" style="height:${12 + i*2}px"></div>`
+  ).join('');
+  row.innerHTML = `
+    <div class="tower">${blocks}</div>
+    <div class="streak-text"><i class="ti ti-flame" aria-hidden="true"></i> ${state.streak} in a row!</div>`;
+}
+
+/* ══════════════════════════════════════
+   GAME FLOW
+══════════════════════════════════════ */
+function startGame() {
+  state.questions = generateQuestions();
+  state.history = [];
+  state.lawStats = {};
+  state.selectedLaws.forEach(id => state.lawStats[id] = { correct: 0, total: 0 });
+  state.currentQ = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.answered = false;
+  state.lastSavedId = null;
+  state.coins = 0;
+
+  resetSaveScorePanel();
+
+  document.getElementById('ref-items').innerHTML = ALL_LAWS_REF.map(r =>
+    `<div class="ref-item"><span class="rname"><span class="dot" style="width:7px;height:7px;border-radius:50%;background:${r.color};display:inline-block;"></span>${r.name}</span><span class="rform">${r.form}</span></div>`
+  ).join('');
+  document.getElementById('ref-panel').classList.remove('show');
+  document.getElementById('ref-toggle').innerHTML = '<i class="ti ti-book" aria-hidden="true"></i> Show law reference';
+  document.getElementById('ref-toggle').setAttribute('aria-expanded', 'false');
+
+  document.getElementById('stat-q').textContent = `1/${state.total}`;
+  updateCoinsDisplay();
+
+  showScreen('game');
+  renderQuestion();
+}
+
+function updateCoinsDisplay(bump) {
+  const chip = document.getElementById('stat-coins-chip');
+  document.getElementById('stat-coins').textContent = state.coins;
+  if (bump) {
+    chip.classList.remove('bump');
+    void chip.offsetWidth; // restart animation
+    chip.classList.add('bump');
+  }
+}
+
+function renderQuestion() {
+  const q = state.questions[state.currentQ];
+  state.answered = false;
+  state.hintRevealed = false;
+
+  document.getElementById('q-law-label').textContent = q.lawName;
+  const badge = document.getElementById('active-law-badge');
+  badge.textContent = q.lawName;
+  badge.style.setProperty('--law-color', q.lawColor);
+  document.getElementById('q-hint').querySelector('span').textContent = q.hint;
+  document.getElementById('q-hint').style.setProperty('--law-color', q.lawColor);
+  document.getElementById('q-hint').style.display = 'none';
+  const hintBtn = document.getElementById('q-hint-btn');
+  hintBtn.style.display = 'flex';
+  hintBtn.disabled = false;
+  hintBtn.innerHTML = '<i class="ti ti-bulb" aria-hidden="true"></i> Reveal hint <span class="coin-cost">-2 🪙</span>';
+  document.getElementById('q-text').innerHTML = q.text;
+
+  document.querySelector('.question-card').style.setProperty('--law-color', q.lawColor);
+
+  document.getElementById('stat-q').textContent = `${state.currentQ + 1}/${state.total}`;
+  document.getElementById('stat-correct').textContent = state.correct;
+  document.getElementById('stat-wrong').textContent = state.wrong;
+  updateCoinsDisplay();
+
+  document.getElementById('progress-fill').style.width = `${(state.currentQ / state.total) * 100}%`;
+
+  renderTower();
+
+  document.getElementById('feedback-box').className = 'feedback-box';
+  document.getElementById('feedback-box').innerHTML = '';
+  document.getElementById('next-btn').className = 'next-btn';
+
+  const opts = shuffle([q.answer, ...q.wrongOpts]);
+  const optArea = document.getElementById('options-area');
+  optArea.innerHTML = `<div class="options-grid">
+    ${opts.map((opt, i) => `
+      <button class="opt-btn" data-opt="${escAttr(opt)}" onclick="checkAnswer(this)">
+        <span class="opt-key">${i + 1}</span>${renderAns(opt)}
+      </button>`
+    ).join('')}
+  </div>`;
+}
+
+function escAttr(s) {
+  return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function checkAnswer(btn) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const chosen = btn.dataset.opt;
+  const q = state.questions[state.currentQ];
+  const correct = chosen === q.answer;
+
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.opt === q.answer) b.classList.add('correct');
+    else if (b.dataset.opt === chosen && !correct) b.classList.add('wrong');
+  });
+
+  const stats = state.lawStats[q.lawId] || (state.lawStats[q.lawId] = { correct: 0, total: 0 });
+  stats.total++;
+
+  const CORRECT_EMOJI = ['🎉','🔥','⭐','💯','🚀','🙌'];
+  const WRONG_EMOJI = ['😬','😅','🤔','💭','😮'];
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  const fb = document.getElementById('feedback-box');
+  if (correct) {
+    state.correct++;
+    state.streak++;
+    stats.correct++;
+    state.coins += 5;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = `<i class="ti ti-check" aria-hidden="true"></i><span>${pick(CORRECT_EMOJI)} ${state.streak >= 2 ? `${state.streak} in a row! ` : 'Correct! '}${q.explanation} <b style="color:var(--amber-dark);">+5 🪙</b></span>`;
+    Sound.correct();
+    updateCoinsDisplay(true);
+  } else {
+    state.wrong++;
+    state.streak = 0;
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = `<i class="ti ti-x" aria-hidden="true"></i><span>${pick(WRONG_EMOJI)} ${q.explanation}</span>`;
+    Sound.wrong();
+  }
+
+  document.getElementById('q-hint-btn').disabled = true;
+
+  state.history.push({ q, correct });
+
+  document.getElementById('stat-correct').textContent = state.correct;
+  document.getElementById('stat-wrong').textContent = state.wrong;
+
+  renderTower();
+
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  if (!state.answered) return;
+  state.currentQ++;
+  if (state.currentQ >= state.total) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+/* ══════════════════════════════════════
+   CONFETTI (restrained — only for great scores)
+══════════════════════════════════════ */
+function launchConfetti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#2E4CDB', '#DC9A2E', '#1E9E68', '#7A5CFA', '#D2691E'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 3600);
+  }
+}
+
+/* ══════════════════════════════════════
+   POPPERS / FIREWORKS — plays whenever a
+   quiz run finishes, regardless of score
+══════════════════════════════════════ */
+function launchFireworkShell(x, y) {
+  const colors = ['#2E4CDB', '#DC9A2E', '#1E9E68', '#7A5CFA', '#D1454A', '#F0B653'];
+  const wrap = document.createElement('div');
+  wrap.className = 'firework-wrap';
+  wrap.style.left = x + 'px';
+  wrap.style.top = y + 'px';
+  const n = 22;
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i) / n + Math.random() * 0.2;
+    const dist = 60 + Math.random() * 70;
+    const p = document.createElement('div');
+    p.className = 'firework-particle';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    p.style.animationDelay = (Math.random() * 0.08) + 's';
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 1300);
+}
+
+function launchEmojiPoppers() {
+  const emojis = ['🎉','🎊','✨','🥳','🍾'];
+  const originX = [0.12, 0.5, 0.88]; // left, center, right poppers
+  originX.forEach((ox, oi) => {
+    const originY = 1; // bottom of viewport
+    for (let i = 0; i < 10; i++) {
+      const e = document.createElement('div');
+      e.className = 'popper-emoji';
+      e.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const startX = window.innerWidth * ox;
+      const startY = window.innerHeight * originY;
+      e.style.left = startX + 'px';
+      e.style.top = startY + 'px';
+      const spread = (Math.random() - 0.5) * 260;
+      const rise = -(280 + Math.random() * 220);
+      e.style.setProperty('--dx', spread + 'px');
+      e.style.setProperty('--dy', rise + 'px');
+      e.style.setProperty('--rot', (Math.random() * 480 - 240) + 'deg');
+      e.style.animationDelay = (oi * 0.1 + Math.random() * 0.15) + 's';
+      document.body.appendChild(e);
+      setTimeout(() => e.remove(), 2000);
+    }
+  });
+}
+
+function launchPoppers() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  launchEmojiPoppers();
+  const w = window.innerWidth, h = window.innerHeight;
+  launchFireworkShell(w * 0.25, h * 0.32);
+  setTimeout(() => launchFireworkShell(w * 0.75, h * 0.26), 220);
+  setTimeout(() => launchFireworkShell(w * 0.5, h * 0.4), 440);
+}
+
+/* ══════════════════════════════════════
+   RESULTS
+══════════════════════════════════════ */
+function showResults() {
+  document.getElementById('progress-fill').style.width = '100%';
+  showScreen('results');
+  state.reviewFilter = 'all';
+  document.querySelectorAll('#review-filter button').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+
+  document.getElementById('res-correct').textContent = state.correct;
+  document.getElementById('res-streak').textContent = state.bestStreak;
+  document.getElementById('res-acc').textContent = Math.round((state.correct / state.total) * 100) + '%';
+  document.getElementById('res-coins').textContent = `${state.coins} 🪙`;
+
+  // Result tower — one block per question, filled = correct
+  const towerEl = document.getElementById('result-tower');
+  towerEl.innerHTML = state.history.map(({correct}, i) =>
+    `<div class="rt-block ${correct ? 'hit' : 'miss'}" style="height:${28 + (i % 5) * 11}px; animation-delay:${i*0.035}s"></div>`
+  ).join('');
+
+  const pct = state.correct / state.total;
+  let grade, msg;
+  if      (pct === 1)   { grade = 'Perfect! 🏆'; msg = "Flawless. You've mastered these laws."; }
+  else if (pct >= 0.8)  { grade = 'Excellent! 🎉'; msg = 'You have a strong grasp of the laws of exponents.'; }
+  else if (pct >= 0.6)  { grade = 'Good work! 👍'; msg = "Keep practicing — you're getting there."; }
+  else if (pct >= 0.4)  { grade = 'Keep going 💪'; msg = 'Try again and pay close attention to the hint for each question.'; }
+  else                  { grade = 'Practice more 📚'; msg = 'Review the law reference and try again.'; }
+
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-msg').textContent = msg;
+
+  // Per-law breakdown
+  const bdList = document.getElementById('breakdown-list');
+  const rows = state.selectedLaws.map(id => {
+    const law = lawById(id);
+    const s = state.lawStats[id] || { correct: 0, total: 0 };
+    const p = s.total ? Math.round((s.correct / s.total) * 100) : 0;
+    return `<div class="bd-row">
+      <div class="bd-row-top"><span>${law.name}</span><b>${s.correct}/${s.total}</b></div>
+      <div class="bd-bar-wrap"><div class="bd-bar-fill" style="--bd-color:${law.color}; width:${p}%"></div></div>
+    </div>`;
+  });
+  bdList.innerHTML = rows.join('');
+
+  renderReview();
+
+  Sound.finish();
+  launchPoppers();
+  if (pct >= 0.8) setTimeout(launchConfetti, 300);
+}
+
+function renderReview() {
+  const list = document.getElementById('review-list');
+  const items = state.reviewFilter === 'miss'
+    ? state.history.filter(h => !h.correct)
+    : state.history;
+
+  if (!items.length) {
+    list.innerHTML = `<div class="review-empty"><i class="ti ti-confetti" aria-hidden="true"></i> No missed questions — nice work!</div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(({ q, correct }) => `
+    <div class="review-item">
+      <div class="review-icon ${correct ? 'correct' : 'wrong'}">
+        <i class="ti ${correct ? 'ti-check' : 'ti-x'}" aria-hidden="true"></i>
+      </div>
+      <div>
+        <div class="review-q">${q.text}</div>
+        <div class="review-exp">${q.explanation}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+/* ══════════════════════════════════════
+   SHARED LEADERBOARD — DATABASE BACKED
+   (Supabase REST/PostgREST — NOT Claude storage)
+
+   Scores are saved to a real external database, so they persist
+   independently of Claude and are visible to anyone who opens this
+   HTML file, from any device or browser.
+
+   ── ONE-TIME SETUP (free, ~2 minutes) ──
+   1. Create a free project at https://supabase.com
+   2. In the SQL editor, run:
+
+        create table leaderboard (
+          id uuid primary key default gen_random_uuid(),
+          name text not null,
+          avatar text default '🦊',
+          score int not null,
+          total int not null,
+          accuracy int not null,
+          streak int not null,
+          difficulty text not null,
+          created_at timestamptz default now()
+        );
+        alter table leaderboard enable row level security;
+        create policy "public read" on leaderboard for select using (true);
+        create policy "public insert" on leaderboard for insert with check (true);
+
+   3. In Project Settings → API, copy the "Project URL" and the
+      "anon public" key into DB_CONFIG below.
+   4. Re-upload/host this file. Done — the leaderboard is now shared
+      across every device that opens it, stored in your own database.
+══════════════════════════════════════ */
+const DB_CONFIG = {
+  SUPABASE_URL: ' https://kinpycnkpffjvnhvegll.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpbnB5Y25rcGZmanZuaHZlZ2xsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTIxNTcsImV4cCI6MjA5OTkyODE1N30.uq30b47WDU8pHFt7ieDvdxlTtOxaLr7Yu7rfyyZETjo ',
+  TABLE: 'leaderboard'
+};
+
+const AVATARS = ['🦊','🐙','🚀','🎯','🔥','🧠','🐝','🌟','🐺','🦉','⚡','🎲'];
+
+function isDbConfigured() {
+  return DB_CONFIG.SUPABASE_URL.startsWith('https://') &&
+    !DB_CONFIG.SUPABASE_URL.includes('YOUR-PROJECT') &&
+    DB_CONFIG.SUPABASE_ANON_KEY && !DB_CONFIG.SUPABASE_ANON_KEY.includes('YOUR-ANON');
+}
+
+function dbHeaders(extra) {
+  return Object.assign({
+    'apikey': DB_CONFIG.SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${DB_CONFIG.SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json'
+  }, extra || {});
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function loadLeaderboardData() {
+  if (!isDbConfigured()) return null; // null = not set up yet, [] = configured but empty
+  const url = `${DB_CONFIG.SUPABASE_URL}/rest/v1/${DB_CONFIG.TABLE}?select=*&order=accuracy.desc,score.desc,created_at.asc&limit=50`;
+  const res = await fetch(url, { headers: dbHeaders() });
+  if (!res.ok) throw new Error(`Database read failed (${res.status})`);
+  const rows = await res.json();
+  return rows.map(r => ({
+    id: r.id,
+    name: r.name,
+    avatar: r.avatar || '🦊',
+    score: r.score,
+    total: r.total,
+    accuracy: r.accuracy,
+    streak: r.streak,
+    difficulty: r.difficulty,
+    ts: new Date(r.created_at).getTime()
+  }));
+}
+
+async function saveScoreToLeaderboard(name, avatar) {
+  const payload = {
+    name: name.slice(0, 20),
+    avatar: avatar || '🦊',
+    score: state.correct,
+    total: state.total,
+    accuracy: Math.round((state.correct / state.total) * 100),
+    streak: state.bestStreak,
+    difficulty: state.difficulty
+  };
+  const url = `${DB_CONFIG.SUPABASE_URL}/rest/v1/${DB_CONFIG.TABLE}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: dbHeaders({ 'Prefer': 'return=representation' }),
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error(`Database write failed (${res.status})`);
+  const [row] = await res.json();
+  return { ...payload, id: row?.id, ts: Date.now() };
+}
+
+function medalFor(rank) {
+  return rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+}
+
+function renderPodium(top3) {
+  const el = document.getElementById('lb-podium');
+  if (!top3.length) { el.innerHTML = ''; return; }
+  const order = ['p2', 'p1', 'p3']; // visual order left-to-right via CSS `order`
+  el.innerHTML = `<div class="podium">${top3.map((e, i) => {
+    const rank = i + 1;
+    const you = e.id && e.id === state.lastSavedId ? ' you' : '';
+    return `<div class="podium-slot p${rank}${you}">
+      <span class="podium-medal">${medalFor(rank)}</span>
+      <div class="podium-avatar">${e.avatar || '🦊'}</div>
+      <div class="podium-name">${escapeHtml(e.name || 'Anonymous')}</div>
+      <div class="podium-score">${e.accuracy}%</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderLeaderboardList(arr) {
+  const podiumEl = document.getElementById('lb-podium');
+  const el = document.getElementById('lb-content');
+
+  if (arr === null) {
+    podiumEl.innerHTML = '';
+    el.innerHTML = `<div class="lb-empty"><i class="ti ti-database-off" aria-hidden="true"></i><br>Leaderboard database isn't connected yet.<br><span style="font-size:11.5px;">Add your Supabase URL &amp; key in the code (see DB_CONFIG) to turn this on.</span></div>`;
+    return;
+  }
+  if (!arr.length) {
+    podiumEl.innerHTML = '';
+    el.innerHTML = `<div class="lb-empty"><i class="ti ti-trophy" aria-hidden="true"></i><br>No scores yet — be the first to save one!</div>`;
+    return;
+  }
+
+  renderPodium(arr.slice(0, 3));
+  const rest = arr.slice(3);
+  if (!rest.length) { el.innerHTML = ''; return; }
+
+  el.innerHTML = rest.map((e, i) => {
+    const rank = i + 4;
+    const you = e.id && e.id === state.lastSavedId ? ' you' : '';
+    const dateStr = new Date(e.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return `<div class="lb-row${you}" style="animation-delay:${Math.min(i,10) * 0.04}s">
+      <div class="lb-rank">${rank}</div>
+      <div class="lb-avatar">${e.avatar || '🦊'}</div>
+      <div class="lb-info">
+        <div class="lb-name">${escapeHtml(e.name || 'Anonymous')}</div>
+        <div class="lb-meta">${e.score}/${e.total} correct &middot; ${e.difficulty} &middot; ${dateStr}</div>
+      </div>
+      <div class="lb-score">${e.accuracy}%</div>
+    </div>`;
+  }).join('');
+}
+
+async function openLeaderboard() {
+  showScreen('leaderboard');
+  document.getElementById('lb-podium').innerHTML = '';
+  document.getElementById('lb-content').innerHTML = `<div class="lb-loading"><i class="ti ti-loader-2" aria-hidden="true"></i> Loading scores…</div>`;
+  try {
+    const arr = await loadLeaderboardData();
+    renderLeaderboardList(arr);
+    if (arr && arr.length && arr[0].id === state.lastSavedId) launchConfetti();
+  } catch (err) {
+    document.getElementById('lb-content').innerHTML = `<div class="lb-empty"><i class="ti ti-alert-triangle" aria-hidden="true"></i><br>Couldn't reach the database. Check your connection and try again.</div>`;
+  }
+}
+
+function buildAvatarPicker() {
+  const el = document.getElementById('avatar-picker');
+  if (!state.lbAvatar) state.lbAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+  el.innerHTML = AVATARS.map(a =>
+    `<button type="button" class="avatar-opt${a === state.lbAvatar ? ' selected' : ''}" data-avatar="${a}" aria-label="Pick avatar ${a}">${a}</button>`
+  ).join('');
+  el.querySelectorAll('.avatar-opt').forEach(btn => {
+    btn.onclick = () => {
+      Sound.click();
+      state.lbAvatar = btn.dataset.avatar;
+      el.querySelectorAll('.avatar-opt').forEach(b => b.classList.toggle('selected', b === btn));
+    };
+  });
+}
+
+function resetSaveScorePanel() {
+  const input = document.getElementById('lb-name-input');
+  const btn = document.getElementById('lb-save-btn');
+  const status = document.getElementById('lb-save-status');
+  input.value = '';
+  input.disabled = false;
+  btn.disabled = false;
+  status.className = 'save-score-status';
+  status.innerHTML = '';
+  buildAvatarPicker();
+}
+
+/* ══════════════════════════════════════
+   EVENT WIRING
+══════════════════════════════════════ */
+document.getElementById('start-btn').onclick = startGame;
+document.getElementById('back-btn').onclick = () => showScreen('home');
+document.getElementById('next-btn').onclick = nextQuestion;
+document.getElementById('retry-btn').onclick = startGame;
+document.getElementById('home-btn').onclick = () => showScreen('home');
+
+document.getElementById('law-select-all').onclick = () => {
+  Sound.click();
+  state.selectedLaws = LAWS.map(l => l.id);
+  document.querySelectorAll('.law-card').forEach(c => c.classList.add('selected'));
+  updateLawSelectCount();
+};
+
+document.getElementById('law-select-clear').onclick = () => {
+  Sound.click();
+  state.selectedLaws = [LAWS[0].id];
+  document.querySelectorAll('.law-card').forEach((c, i) => c.classList.toggle('selected', i === 0));
+  updateLawSelectCount();
+};
+
+document.querySelectorAll('#diff-row .choice-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#diff-row .choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.difficulty = btn.dataset.diff;
+    document.getElementById('diff-desc').textContent = DIFF_DESCS[state.difficulty];
+  };
+});
+
+document.querySelectorAll('#count-row .choice-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#count-row .choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.total = parseInt(btn.dataset.count, 10);
+  };
+});
+
+const HINT_COST = 2;
+
+document.getElementById('q-hint-btn').onclick = () => {
+  if (state.hintRevealed || state.answered) return;
+  const btn = document.getElementById('q-hint-btn');
+  if (state.coins < HINT_COST) {
+    btn.innerHTML = '<i class="ti ti-coin-off" aria-hidden="true"></i> Not enough coins';
+    Sound.wrong();
+    setTimeout(() => {
+      if (!state.hintRevealed) btn.innerHTML = '<i class="ti ti-bulb" aria-hidden="true"></i> Reveal hint <span class="coin-cost">-2 🪙</span>';
+    }, 1200);
+    return;
+  }
+  state.coins -= HINT_COST;
+  state.hintRevealed = true;
+  updateCoinsDisplay(true);
+  Sound.click();
+  document.getElementById('q-hint').style.display = 'flex';
+  btn.style.display = 'none';
+};
+
+document.getElementById('ref-toggle').onclick = () => {
+  const panel = document.getElementById('ref-panel');
+  const showing = panel.classList.toggle('show');
+  document.getElementById('ref-toggle').innerHTML = showing
+    ? '<i class="ti ti-book" aria-hidden="true"></i> Hide law reference'
+    : '<i class="ti ti-book" aria-hidden="true"></i> Show law reference';
+  document.getElementById('ref-toggle').setAttribute('aria-expanded', String(showing));
+};
+
+document.getElementById('sound-toggle').onclick = function () {
+  state.soundOn = !state.soundOn;
+  this.classList.toggle('on', state.soundOn);
+  this.setAttribute('aria-pressed', String(state.soundOn));
+  this.innerHTML = state.soundOn
+    ? '<i class="ti ti-volume" aria-hidden="true"></i>'
+    : '<i class="ti ti-volume-3" aria-hidden="true"></i>';
+  if (state.soundOn) Sound.click();
+};
+
+document.getElementById('lb-nav-btn').onclick = openLeaderboard;
+document.getElementById('lb-back-btn').onclick = () => showScreen('home');
+document.getElementById('lb-refresh-btn').onclick = openLeaderboard;
+
+document.getElementById('lb-save-btn').onclick = async () => {
+  const input = document.getElementById('lb-name-input');
+  const status = document.getElementById('lb-save-status');
+  const btn = document.getElementById('lb-save-btn');
+  const name = input.value.trim();
+
+  if (!name) {
+    status.className = 'save-score-status err';
+    status.textContent = 'Enter a name first.';
+    return;
+  }
+  if (!isDbConfigured()) {
+    status.className = 'save-score-status err';
+    status.innerHTML = 'Leaderboard database isn\'t connected yet — see <code style="font-family:var(--font-mono);">DB_CONFIG</code> in the code.';
+    return;
+  }
+
+  btn.disabled = true;
+  status.className = 'save-score-status pending';
+  status.innerHTML = '<i class="ti ti-loader-2" aria-hidden="true"></i> Saving…';
+
+  try {
+    const saved = await saveScoreToLeaderboard(name, state.lbAvatar);
+    state.lastSavedId = saved.id;
+    status.className = 'save-score-status ok';
+    status.innerHTML = `<i class="ti ti-check" aria-hidden="true"></i> Saved as ${saved.avatar} ${escapeHtml(saved.name)}! <a href="#" id="lb-view-link" style="color:var(--accent); font-weight:600;">View leaderboard</a>`;
+    input.disabled = true;
+    document.querySelectorAll('#avatar-picker .avatar-opt').forEach(b => b.disabled = true);
+    document.getElementById('lb-view-link').onclick = (e) => { e.preventDefault(); openLeaderboard(); };
+    Sound.finish();
+    if (saved.accuracy >= 80) launchConfetti();
+  } catch (err) {
+    status.className = 'save-score-status err';
+    status.textContent = "Couldn't reach the database — try again.";
+    btn.disabled = false;
+  }
+};
+
+document.getElementById('share-score-btn').onclick = async () => {
+  const pct = Math.round((state.correct / state.total) * 100);
+  const text = `I scored ${state.correct}/${state.total} (${pct}%) on ExponentQuest — best streak ${state.bestStreak} 🔢⚡ Can you beat that?`;
+  try {
+    if (navigator.share) {
+      await navigator.share({ text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('share-score-btn');
+      const original = btn.innerHTML;
+      btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copied!';
+      setTimeout(() => { btn.innerHTML = original; }, 1600);
+    }
+    Sound.click();
+  } catch (e) { /* user cancelled share/copy — ignore */ }
+};
+
+document.getElementById('review-filter').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-filter]');
+  if (!btn) return;
+  state.reviewFilter = btn.dataset.filter;
+  document.querySelectorAll('#review-filter button').forEach(b => b.classList.toggle('active', b === btn));
+  renderReview();
+});
+
+/* Keyboard controls during game */
+document.addEventListener('keydown', (e) => {
+  const gameActive = document.getElementById('screen-game').classList.contains('active');
+  if (!gameActive) return;
+
+  if (!state.answered && ['1','2','3','4'].includes(e.key)) {
+    const idx = parseInt(e.key, 10) - 1;
+    const buttons = document.querySelectorAll('.opt-btn');
+    if (buttons[idx]) buttons[idx].click();
+  } else if (state.answered && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    nextQuestion();
+  }
+});
+
+/* ── Init ── */
+buildHome();
+</script>
+</body>
+</html>
